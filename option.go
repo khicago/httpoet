@@ -28,6 +28,10 @@ func OTimeout(d time.Duration) Option {
 
 func OAddHeaders(headers H) Option {
 	return func(req *RequestBuilder) func() {
+		if req.Header == nil {
+			req.Header = make(H)
+		}
+
 		req.Header.Append(headers)
 		return func() {}
 	}
@@ -35,6 +39,10 @@ func OAddHeaders(headers H) Option {
 
 func OSetHeader(key string, value ...string) Option {
 	return func(req *RequestBuilder) func() {
+		if req.Header == nil {
+			req.Header = make(H)
+		}
+
 		req.Header.Set(key, value...)
 		return func() {}
 	}
@@ -42,6 +50,10 @@ func OSetHeader(key string, value ...string) Option {
 
 func OAppendQuery(key string, val string) Option {
 	return func(req *RequestBuilder) func() {
+		if req.Query == nil {
+			req.Query = make(Q)
+		}
+
 		req.Query.Add(key, val)
 		return func() {}
 	}
@@ -49,6 +61,10 @@ func OAppendQuery(key string, val string) Option {
 
 func OAppendQueryH(queries Q) Option {
 	return func(req *RequestBuilder) func() {
+		if req.Query == nil {
+			req.Query = make(Q)
+		}
+		
 		req.Query.Append(queries)
 		return func() {}
 	}

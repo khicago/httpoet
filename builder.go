@@ -114,8 +114,10 @@ func (rb *RequestBuilder) Build() (rbRet *RequestBuilder) {
 		return
 	}
 
-	for k, vs := range rb.Header {
-		req.Header[k] = append(req.Header[k], vs...)
+	if rb.Header != nil {
+		for k, vs := range rb.Header {
+			req.Header[k] = append(req.Header[k], vs...)
+		}
 	}
 	rb.req = req
 	return

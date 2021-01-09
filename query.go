@@ -1,6 +1,9 @@
 package httpoet
 
-import "net/url"
+import (
+	"fmt"
+	"net/url"
+)
 
 type Q url.Values
 
@@ -30,4 +33,19 @@ func (q Q) WriteTo(u *url.URL) error {
 	}
 	u.RawQuery = query.Encode()
 	return nil
+}
+
+func (q Q) WriteToPth(u string, args ...interface{}) (string, error) {
+	if len(args) > 0 {
+		u = fmt.Sprintf(u, args...)
+	}
+	tu, err := url.Parse(u)
+	if err != nil {
+		return "", err
+	}
+	err = q.WriteTo(tu)
+	if err != nil {
+		return "", err
+	}
+	return tu.String(), nil
 }
