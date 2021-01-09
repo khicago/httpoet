@@ -2,11 +2,12 @@ package httpoet
 
 import (
 	"encoding/json"
-	"github.com/khicago/irr"
 	"net/http"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/khicago/irr"
 )
 
 var requestClient = &http.Client{

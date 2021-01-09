@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/khicago/irr"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/khicago/irr"
 )
 
 type RequestBuilder struct {
