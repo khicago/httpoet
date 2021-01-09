@@ -74,6 +74,10 @@ func (rb *RequestBuilder) XQuery(q Q) *RequestBuilder {
 }
 
 func (rb *RequestBuilder) XData(d D) *RequestBuilder {
+	return rb.XDataCustom(d)
+}
+
+func (rb *RequestBuilder) XDataCustom(d interface{}) *RequestBuilder {
 	if rb.Error != nil {
 		return rb
 	}

@@ -15,27 +15,57 @@ var requestClient = &http.Client{
 	Timeout:   time.Second * 30,
 }
 
-func BuildNRun(req *RequestBuilder, options ...Option) ([]byte, error) {
+type (
+	result struct {
+		body []byte
+		err  error
+	}
+
+	IResult interface {
+		Body() ([]byte, error)
+		ParseJson(resultObject interface{}) error
+		ParseCustom(resultObject interface{}, method func(body []byte, target interface{}) error) error
+	}
+)
+
+func (rr *result) Body() ([]byte, error) {
+	return rr.body, rr.err
+}
+
+func (rr *result) ParseJson(resultObject interface{}) error {
+	if rr.err != nil {
+		return irr.TrackSkip(1, rr.err, "parse stopped, error already exist")
+	}
+	if rr.err = json.Unmarshal(rr.body, resultObject); rr.err != nil {
+		return irr.TrackSkip(1, rr.err, "unmarshal to result error, type= %v", reflect.TypeOf(resultObject))
+	}
+	return rr.err
+}
+
+func (rr *result) ParseCustom(resultObject interface{}, method func(body []byte, target interface{}) error) error {
+	if rr.err != nil {
+		return irr.TrackSkip(1, rr.err, "parse stopped, error already exist")
+	}
+	if method == nil {
+		return irr.TraceSkip(1, "custom parser cannot be empty")
+	}
+	if rr.err = method(rr.body, resultObject); rr.err != nil {
+		return irr.TrackSkip(1, rr.err, "unmarshal to result error, type= %v", reflect.TypeOf(resultObject))
+	}
+	return rr.err
+}
+
+func BuildNRun(req *RequestBuilder, options ...Option) IResult {
 	if len(options) > 0 {
 		defer options[0](req)()
 		return BuildNRun(req, options[1:]...)
 	}
 	req.Build()
 	if req.Build().Error != nil {
-		return nil, irr.Track(req.Error, "http client do request failed")
+		return &result{err: irr.Track(req.Error, "http client do request failed")}
 	}
-	return req.Do()
-}
-
-func BuildNRunNParse(req *RequestBuilder, result interface{}, options ...Option) error {
-	body, err := BuildNRun(req, options...)
-	if err != nil {
-		return err
-	}
-	if err = json.Unmarshal(body, result); err != nil {
-		return irr.Track(err, "unmarshal to result error, type= %v, err= %v", reflect.TypeOf(result), err)
-	}
-	return nil
+	body, err := req.Do()
+	return &result{body, err}
 }
 
 func (hp *Poet) CreateAbsoluteUrl(url string) string {
@@ -60,32 +90,34 @@ func (hp *Poet) SpawnReq(url string) *RequestBuilder {
 	return NewReq().XUrl(absoluteUrl).XHeader(hp.baseH)
 }
 
-func (hp *Poet) Send(method string, url string, data D, result interface{}, options ...Option) error {
-	rb := hp.SpawnReq(url).XMethod(method).XData(data)
-	return BuildNRunNParse(rb, result, options...)
+func (hp *Poet) Send(method string, url string, data interface{}, options ...Option) IResult {
+	rb := hp.SpawnReq(url).XMethod(method).XDataCustom(data)
+	return BuildNRun(rb, options...)
 }
 
-func (hp *Poet) Get(url string, result interface{}, options ...Option) error {
+/* REST-ful apis */
+
+func (hp *Poet) Post(url string, data interface{}, options ...Option) IResult {
+	rb := hp.SpawnReq(url).XMethod(http.MethodPost).XDataCustom(data)
+	return BuildNRun(rb, options...)
+}
+
+func (hp *Poet) Put(url string, data interface{}, options ...Option) IResult {
+	rb := hp.SpawnReq(url).XMethod(http.MethodPut).XDataCustom(data)
+	return BuildNRun(rb, options...)
+}
+
+func (hp *Poet) Patch(url string, data interface{}, options ...Option) IResult {
+	rb := hp.SpawnReq(url).XMethod(http.MethodPatch).XDataCustom(data)
+	return BuildNRun(rb, options...)
+}
+
+func (hp *Poet) Get(url string, options ...Option) IResult {
 	rb := hp.SpawnReq(url).XMethod(http.MethodGet)
-	return BuildNRunNParse(rb, result, options...)
+	return BuildNRun(rb, options...)
 }
 
-func (hp *Poet) Post(url string, data D, result interface{}, options ...Option) error {
-	rb := hp.SpawnReq(url).XMethod(http.MethodPost).XData(data)
-	return BuildNRunNParse(rb, result, options...)
-}
-
-func (hp *Poet) Put(url string, data D, result interface{}, options ...Option) error {
-	rb := hp.SpawnReq(url).XMethod(http.MethodPut).XData(data)
-	return BuildNRunNParse(rb, result, options...)
-}
-
-func (hp *Poet) Patch(url string, data D, result interface{}, options ...Option) error {
-	rb := hp.SpawnReq(url).XMethod(http.MethodPatch).XData(data)
-	return BuildNRunNParse(rb, result, options...)
-}
-
-func (hp *Poet) Delete(url string, result interface{}, options ...Option) error {
+func (hp *Poet) Delete(url string, options ...Option) IResult {
 	rb := hp.SpawnReq(url).XMethod(http.MethodDelete)
-	return BuildNRunNParse(rb, result, options...)
+	return BuildNRun(rb, options...)
 }
