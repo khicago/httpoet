@@ -6,19 +6,22 @@ import (
 
 type H http.Header
 
-func (h H) Append(headers H) H {
+func (h H) WithH(headers H) H {
+	newH := make(H)
+	for k, v := range h {
+		newH[k] = v
+	}
 	for key, value := range headers {
-		h.Add(key, value...)
+		newH[key] = append(newH[key], value...)
 	}
 	return h
 }
 
-func (h H) Add(key string, value ...string) H {
-	h[key] = append(h[key], value...)
-	return h
-}
-
-func (h H) Set(key string, value ...string) H {
-	h[key] = value
-	return h
+func (h H) WithKV(key string, value ...string) H {
+	newH := make(H)
+	for k, v := range h {
+		newH[k] = v
+	}
+	newH[key] = value
+	return newH
 }

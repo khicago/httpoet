@@ -32,7 +32,7 @@ func OAddHeaders(headers H) Option {
 			req.Header = make(H)
 		}
 
-		req.Header.Append(headers)
+		req.Header = req.Header.WithH(headers)
 		return func() {}
 	}
 }
@@ -43,7 +43,7 @@ func OSetHeader(key string, value ...string) Option {
 			req.Header = make(H)
 		}
 
-		req.Header.Set(key, value...)
+		req.Header = req.Header.WithKV(key, value...)
 		return func() {}
 	}
 }
@@ -64,7 +64,7 @@ func OAppendQueryH(queries Q) Option {
 		if req.Query == nil {
 			req.Query = make(Q)
 		}
-		
+
 		req.Query.Append(queries)
 		return func() {}
 	}
