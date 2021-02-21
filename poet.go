@@ -7,7 +7,7 @@ type Poet struct {
 
 func New(host string) *Poet {
 	poet := &Poet{
-		host: host,
+		host:  host,
 		baseH: make(Hs),
 	}
 	return poet
