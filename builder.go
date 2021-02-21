@@ -127,7 +127,7 @@ func (rb *RequestBuilder) Do() ([]byte, error) {
 	if rb.Error != nil {
 		return nil, irr.Track(rb.Error, "cannot do incorrect request")
 	}
-	resp, err := requestClient.Do(rb.req)
+	resp, err := RequestClient.Do(rb.req)
 	if err != nil {
 		return nil, irr.Track(err, "http client do request failed")
 	}

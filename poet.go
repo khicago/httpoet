@@ -13,7 +13,7 @@ func New(host string) *Poet {
 	return poet
 }
 
-func (hp *Poet) SetBaseH(header Hs) *Poet {
+func (hp *Poet) SetBaseH(header IHeader) *Poet {
 	if header == nil {
 		return hp
 	}

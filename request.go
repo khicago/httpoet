@@ -10,7 +10,7 @@ import (
 	"github.com/khicago/irr"
 )
 
-var requestClient = &http.Client{
+var RequestClient = &http.Client{
 	Transport: &http.Transport{},
 	Timeout:   time.Second * 30,
 }
