@@ -83,3 +83,30 @@ func ExampleResult() {
 
 options can be used in the request, to modify the request contents before the msg has been sent.
 
+options by defaults:
+
+- `httpoet.OBackground()`
+- `httpoet.OTimeout(d time.Duration)`
+- `httpoet.OSetHeaders(headers IHeader)`
+- `httpoet.OAddHeaders(headers IHeader)`
+- `httpoet.OSetHeader(key string, value ...string)`
+- `httpoet.OAppendHeader(key string, value ...string)`
+- `httpoet.OAppendQuery(key string, val string)`
+- `httpoet.OAppendQueryH(queries IQuery)`
+
+to create a custom option, the httpoet.Option interface should be implemented
+
+```go
+type Option func(req *RequestBuilder) (fnDefer func())
+``` 
+
+### Query Tools
+
+query could be used to create queries easily
+
+```go
+q := httpoet.Q{"s": "some query contents"} // or httpoet.Qs{"chars": {"a","b","c"}}
+pathName := "awesome"
+url := q.WriteToPth("the/%s/path", pathName)
+poet.Post(url, httpoet.D{"input_val":"some example"})
+```
