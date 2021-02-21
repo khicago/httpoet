@@ -2,7 +2,12 @@
 .DS_Store
 .vscode
 
-vendor
+coverage.txt
+coverage.html
+
 Makefile
+*.mk
+
+vendor
 __*/
 .*/
