@@ -1,61 +1,25 @@
 package httpoet
 
-import (
-	"github.com/khicago/irr"
-)
-
 type Poet struct {
 	host  string
-	baseH Hs
+	baseH IHeader
 }
 
-func New(host string, header Hs) (*Poet, irr.IRR) {
+func New(host string) *Poet {
 	poet := &Poet{
 		host: host,
+		baseH: make(Hs),
 	}
-	if err := poet.AddBaseH(header); err != nil {
-		return nil, err
-	}
-	return poet, nil
+	return poet
 }
 
-func (hp *Poet) AddBaseH(header Hs) irr.IRR {
-	if header == nil || len(header) == 0 {
-		return nil
+func (hp *Poet) SetBaseH(header Hs) *Poet {
+	if header == nil {
+		return hp
 	}
-	newH := make(Hs) // cow & immutable
-	for k, v := range header {
-		newH[k] = v
+	if hp.baseH == nil {
+		hp.baseH = make(Hs) // cow & immutable
 	}
-
-	if hp.baseH != nil {
-		for k, v := range hp.baseH {
-			if _, ok := newH[k]; ok {
-				return irr.TraceSkip(1, "cannot override exist key= %s", k)
-			}
-			newH[k] = v
-		}
-	}
-
-	hp.baseH = newH
-	return nil
-}
-
-func (hp *Poet) OverrideBaseH(header Hs) irr.IRR {
-	if header == nil || len(header) == 0 {
-		return nil
-	}
-
-	newH := make(Hs) // cow & immutable
-	if hp.baseH != nil {
-		for k, v := range hp.baseH {
-			newH[k] = v
-		}
-	}
-	for k, v := range header {
-		newH[k] = v
-	}
-
-	hp.baseH = newH
-	return nil
+	hp.baseH = hp.baseH.WithH(header) // will override existed keys
+	return hp
 }
