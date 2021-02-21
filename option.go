@@ -26,10 +26,10 @@ func OTimeout(d time.Duration) Option {
 	}
 }
 
-func OAddHeaders(headers H) Option {
+func OSetHeaders(headers IHeader) Option {
 	return func(req *RequestBuilder) func() {
 		if req.Header == nil {
-			req.Header = make(H)
+			req.Header = make(Hs)
 		}
 
 		req.Header = req.Header.WithH(headers)
@@ -37,10 +37,20 @@ func OAddHeaders(headers H) Option {
 	}
 }
 
+func OAddHeaders(headers IHeader) Option {
+	return func(req *RequestBuilder) func() {
+		if req.Header == nil {
+			req.Header = make(Hs)
+		}
+		req.Header = req.Header.WithHAppend(headers)
+		return func() {}
+	}
+}
+
 func OSetHeader(key string, value ...string) Option {
 	return func(req *RequestBuilder) func() {
 		if req.Header == nil {
-			req.Header = make(H)
+			req.Header = make(Hs)
 		}
 
 		req.Header = req.Header.WithKV(key, value...)
@@ -48,21 +58,25 @@ func OSetHeader(key string, value ...string) Option {
 	}
 }
 
-func OAppendQuery(key string, val string) Option {
+func OAppendHeader(key string, value ...string) Option {
 	return func(req *RequestBuilder) func() {
-		if req.Query == nil {
-			req.Query = make(Q)
+		if req.Header == nil {
+			req.Header = make(Hs)
 		}
 
-		req.Query.Add(key, val)
+		req.Header = req.Header.WithKVAppend(key, value...)
 		return func() {}
 	}
 }
 
-func OAppendQueryH(queries Q) Option {
+func OAppendQuery(key string, val string) Option {
+	return OAppendQueryH(Q{key: val})
+}
+
+func OAppendQueryH(queries IQuery) Option {
 	return func(req *RequestBuilder) func() {
 		if req.Query == nil {
-			req.Query = make(Q)
+			req.Query = make(Qs)
 		}
 
 		req.Query.Append(queries)

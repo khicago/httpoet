@@ -14,8 +14,8 @@ import (
 type RequestBuilder struct {
 	Method string
 	Url    string
-	Header H
-	Query  Q
+	Header IHeader
+	Query  IQuery
 	Data   interface{}
 
 	Context context.Context
@@ -57,7 +57,7 @@ func (rb *RequestBuilder) XUrl(u string) *RequestBuilder {
 	return rb
 }
 
-func (rb *RequestBuilder) XHeader(h H) *RequestBuilder {
+func (rb *RequestBuilder) XHeader(h IHeader) *RequestBuilder {
 	if rb.Error != nil {
 		return rb
 	}
@@ -65,7 +65,7 @@ func (rb *RequestBuilder) XHeader(h H) *RequestBuilder {
 	return rb
 }
 
-func (rb *RequestBuilder) XQuery(q Q) *RequestBuilder {
+func (rb *RequestBuilder) XQuery(q IQuery) *RequestBuilder {
 	if rb.Error != nil {
 		return rb
 	}
@@ -115,9 +115,9 @@ func (rb *RequestBuilder) Build() (rbRet *RequestBuilder) {
 	}
 
 	if rb.Header != nil {
-		for k, vs := range rb.Header {
+		rb.Header.foreach(func(k string, vs ...string) {
 			req.Header[k] = append(req.Header[k], vs...)
-		}
+		})
 	}
 	rb.req = req
 	return

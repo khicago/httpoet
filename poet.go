@@ -6,10 +6,10 @@ import (
 
 type Poet struct {
 	host  string
-	baseH H
+	baseH Hs
 }
 
-func New(host string, header H) (*Poet, irr.IRR) {
+func New(host string, header Hs) (*Poet, irr.IRR) {
 	poet := &Poet{
 		host: host,
 	}
@@ -19,11 +19,11 @@ func New(host string, header H) (*Poet, irr.IRR) {
 	return poet, nil
 }
 
-func (hp *Poet) AddBaseH(header H) irr.IRR {
+func (hp *Poet) AddBaseH(header Hs) irr.IRR {
 	if header == nil || len(header) == 0 {
 		return nil
 	}
-	newH := make(H) // cow & immutable
+	newH := make(Hs) // cow & immutable
 	for k, v := range header {
 		newH[k] = v
 	}
@@ -41,12 +41,12 @@ func (hp *Poet) AddBaseH(header H) irr.IRR {
 	return nil
 }
 
-func (hp *Poet) OverrideBaseH(header H) irr.IRR {
+func (hp *Poet) OverrideBaseH(header Hs) irr.IRR {
 	if header == nil || len(header) == 0 {
 		return nil
 	}
 
-	newH := make(H) // cow & immutable
+	newH := make(Hs) // cow & immutable
 	if hp.baseH != nil {
 		for k, v := range hp.baseH {
 			newH[k] = v
