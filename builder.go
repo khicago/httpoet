@@ -97,9 +97,11 @@ func (rb *RequestBuilder) Build() (rbRet *RequestBuilder) {
 		return
 	}
 
-	if err = rb.Query.WriteTo(u); err != nil {
-		rb.Error = irr.Track(err, "build query= %s failed", rb.Url)
-		return
+	if rb.Query != nil {
+		if err = rb.Query.WriteTo(u); err != nil {
+			rb.Error = irr.Track(err, "build query= %s failed", rb.Url)
+			return
+		}
 	}
 
 	byteArr, err := rb.buildData()
