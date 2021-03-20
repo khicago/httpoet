@@ -2,6 +2,8 @@ package httpoet
 
 import (
 	"context"
+
+	"net/http"
 	"time"
 )
 
@@ -47,6 +49,19 @@ func OAddHeaders(headers IHeader) Option {
 	}
 }
 
+func OAddCookie(cookie *http.Cookie) Option {
+	return func(req *RequestBuilder) func() {
+
+		if req.Cookies == nil {
+			req.Cookies = []*http.Cookie{cookie}
+			return func() {}
+		}
+
+		req.Cookies = append(req.Cookies, cookie)
+		return func() {}
+	}
+}
+
 func OSetHeader(key string, value ...string) Option {
 	return func(req *RequestBuilder) func() {
 		if req.Header == nil {
@@ -83,3 +98,11 @@ func OAppendQueryH(queries IQuery) Option {
 		return func() {}
 	}
 }
+
+func OCustom(fn func(rb *RequestBuilder)) Option {
+	return func(req *RequestBuilder) func() {
+		fn(req)
+		return func() {}
+	}
+}
+

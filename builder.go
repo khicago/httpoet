@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -19,6 +20,8 @@ type RequestBuilder struct {
 	Data   interface{}
 
 	Context context.Context
+
+	Cookies []*http.Cookie
 
 	req   *http.Request
 	Error error
@@ -121,6 +124,15 @@ func (rb *RequestBuilder) Build() (rbRet *RequestBuilder) {
 			req.Header[k] = append(req.Header[k], vs...)
 		})
 	}
+
+	if rb.Cookies != nil {
+		for _, c := range rb.Cookies {
+			req.AddCookie(c)
+		}
+
+		fmt.Println("build cookie", rb.Cookies, req.Header)
+	}
+
 	rb.req = req
 	return
 }

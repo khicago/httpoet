@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strings"
 	"time"
+	"math/rand"
 
 	"github.com/khicago/irr"
 )
@@ -60,29 +61,46 @@ func BuildNRun(req *RequestBuilder, options ...Option) IResult {
 		defer options[0](req)()
 		return BuildNRun(req, options[1:]...)
 	}
-	req.Build()
+
 	if req.Build().Error != nil {
 		return &result{err: irr.Track(req.Error, "http client do request failed")}
 	}
+
+	//fmt.Printf("req %+v", req)
 	body, err := req.Do()
 	return &result{body, err}
 }
 
+func (hp *Poet) GetHost() string {
+	n := len(hp.hosts)
+	switch n {
+	case 0:
+		return "localhost"
+	case 1:
+		return hp.hosts[0]
+	default:
+		ind := rand.Intn(len(hp.hosts))
+		return hp.hosts[ind]
+	}
+}
+
 func (hp *Poet) CreateAbsoluteUrl(url string) string {
-	lenH, lenU := len(hp.host), len(url)
-	if lenH <= 0 || strings.Contains(url, hp.host) {
+	host := hp.GetHost()
+
+	lenH, lenU := len(host), len(url)
+	if lenH <= 0 || strings.Contains(url, host) {
 		return url
 	}
 	if lenU <= 0 {
-		return hp.host
+		return host
 	}
-	if url[0] == '/' && hp.host[lenH-1] == '/' {
-		return hp.host + url[1:]
+	if url[0] == '/' && host[lenH-1] == '/' {
+		return host + url[1:]
 	}
-	if url[0] != '/' && hp.host[lenH-1] != '/' {
-		return hp.host + "/" + url
+	if url[0] != '/' && host[lenH-1] != '/' {
+		return host + "/" + url
 	}
-	return hp.host + url
+	return host + url
 }
 
 func (hp *Poet) SpawnReq(url string) *RequestBuilder {

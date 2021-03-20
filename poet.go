@@ -1,13 +1,19 @@
 package httpoet
 
 type Poet struct {
-	host  string
+	hosts []string
 	baseH IHeader
 }
 
-func New(host string) *Poet {
+func New(host string, hosts ...string) *Poet {
+	if len(hosts) == 0 {
+		hosts = []string{host}
+	} else {
+		hosts = append([]string{host}, hosts...)
+	}
+
 	poet := &Poet{
-		host:  host,
+		hosts: hosts,
 		baseH: make(Hs),
 	}
 	return poet
