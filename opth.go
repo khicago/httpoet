@@ -1,6 +1,5 @@
 package httpoet
 
-
 func OHContentPB() Option {
 	return OSetHeader("Content-Type", "application/x-protobuf")
 }

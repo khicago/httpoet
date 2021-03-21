@@ -2,7 +2,6 @@ package httpoet
 
 import (
 	"context"
-
 	"net/http"
 	"time"
 )
@@ -51,7 +50,6 @@ func OAddHeaders(headers IHeader) Option {
 
 func OAddCookie(cookie *http.Cookie) Option {
 	return func(req *RequestBuilder) func() {
-
 		if req.Cookies == nil {
 			req.Cookies = []*http.Cookie{cookie}
 			return func() {}
@@ -105,4 +103,3 @@ func OCustom(fn func(rb *RequestBuilder)) Option {
 		return func() {}
 	}
 }
-

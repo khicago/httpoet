@@ -1,12 +1,11 @@
 package httpoet
 
 import (
-	"encoding/json"
+	"math/rand"
 	"net/http"
 	"reflect"
 	"strings"
 	"time"
-	"math/rand"
 
 	"github.com/khicago/irr"
 )
@@ -66,7 +65,7 @@ func BuildNRun(req *RequestBuilder, options ...Option) IResult {
 		return &result{err: irr.Track(req.Error, "http client do request failed")}
 	}
 
-	//fmt.Printf("req %+v", req)
+	// fmt.Printf("req %+v", req)
 	body, err := req.Do()
 	return &result{body, err}
 }
